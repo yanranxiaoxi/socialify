@@ -2,27 +2,20 @@
 
 exports[`Badge renders 1`] = `
 <div
-  className="jsx-3720069586 badge-wrapper"
+  class="badge-wrapper"
+  style="height: 25px; background-color: rgb(85, 85, 85); display: flex; margin: 0px 7px;"
 >
   <p
-    className="jsx-3720069586 badge-label"
+    class="badge-label"
+    style="color: rgb(255, 255, 255); font-family: Jost; font-size: 11px; height: 100%; letter-spacing: 1px; margin: 0px; text-transform: uppercase; padding: 0px 12px 0px 10px; display: flex; align-items: center;"
   >
     name1
   </p>
   <p
-    className="jsx-3720069586 badge-value"
-    style={
-      {
-        "backgroundColor": "black",
-      }
-    }
+    class="badge-value"
+    style="background-color: black; color: rgb(255, 255, 255); font-family: Jost; font-size: 11px; height: 100%; letter-spacing: 1px; margin: 0px -4px 0px -4px; padding: 0px 8px; display: flex; align-items: center;"
   >
     value1
   </p>
-  <JSXStyle
-    id="3720069586"
-  >
-    .badge-wrapper.jsx-3720069586{height:28px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;}.badge-wrapper.jsx-3720069586&gt;p.jsx-3720069586{background:#555;color:#fff;font-family:Verdana,Geneva,'DejaVu Sans',sans-serif;line-height:28px;font-size:10px;-webkit-letter-spacing:1px;-moz-letter-spacing:1px;-ms-letter-spacing:1px;letter-spacing:1px;padding:0 8px;margin:0;}.badge-wrapper.jsx-3720069586 .badge-label.jsx-3720069586{text-transform:uppercase;}
-  </JSXStyle>
 </div>
 `;

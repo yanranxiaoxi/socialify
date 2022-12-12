@@ -1,48 +1,44 @@
-import React from 'react'
 import App from 'next/app'
 import Head from 'next/head'
-import { Layout } from 'antd'
+import Script from 'next/script'
+import { Toaster } from 'react-hot-toast'
+import { Analytics } from '@vercel/analytics/react'
 
 import { HOST_PREFIX } from '../common/helpers'
 
-import '../src/index.css'
+import '../styles/global.css'
 
 import HeaderElement from '../src/components/header/header'
 import FooterElement from '../src/components/footer/footer'
-
-const { Footer, Content } = Layout
 
 const GoogleTagManager = () => {
   if (process.env.GTM_ID) {
     return (
       <>
-        <script
-          async
+        <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.GTM_ID}`}
+          strategy="afterInteractive"
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.GTM_ID}');
-            `.replace(/\s{2,}/g, '')
-          }}
-        />
+        <Script id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${process.env.GTM_ID}');
+          `}
+        </Script>
       </>
     )
   }
 
   return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-        `.replace(/\s{2,}/g, '')
-      }}
-    />
+    <Script id="google-analytics">
+      {`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+      `}
+    </Script>
   )
 }
 
@@ -74,13 +70,15 @@ export default class MyApp extends App {
           <title>GitHub Socialify</title>
           {GoogleTagManager()}
         </Head>
-        <HeaderElement />
-        <Content>
-          <Component {...pageProps} />
-        </Content>
-        <Footer className="footer">
+        <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#231e43] via-[#191630] to-[#15103e]">
+          <HeaderElement />
+          <div className="flex-1 flex">
+            <Component {...pageProps} />
+          </div>
           <FooterElement />
-        </Footer>
+          <Toaster />
+          <Analytics />
+        </div>
       </>
     )
   }

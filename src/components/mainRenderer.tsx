@@ -1,16 +1,16 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { QueryRenderer } from 'react-relay'
-import { Spin } from 'antd'
+import { MdErrorOutline } from 'react-icons/md'
 
-import environment from '../../common/relay/environment'
 import MainWrapper from './mainWrapper'
-
-import query from '../../common/relay/repoQuery'
+import {
+  getRepoDetails,
+  RepoQueryResponse
+} from '../../common/github/repoQuery'
 
 type Props = {
   error: Error | null
-  props: any
+  props: RepoQueryResponse | undefined
 }
 
 const MainRenderer = () => {
@@ -19,45 +19,40 @@ const MainRenderer = () => {
 
   const [, owner, name] = path.split('/')
 
+  const [{ error, props }, setProps] = React.useState<Props>({
+    error: null,
+    props: undefined
+  })
+
+  React.useEffect(() => {
+    if (owner && owner.charAt(0) !== '[') {
+      getRepoDetails(owner, name)
+        .then((props) => setProps({ error: null, props }))
+        .catch((error) => setProps({ error, props: undefined }))
+    }
+  }, [owner, name])
+
   return (
-    <QueryRenderer
-      environment={environment}
-      query={query}
-      variables={{ owner, name }}
-      render={({ error, props }: Props) => {
-        if (error) {
-          return (
-            <div className="loading-wrapper">
+    <main className="hero">
+      {error ? (
+        <div className="hero-content">
+          <div className="alert alert-error shadow-lg">
+            <div>
+              <MdErrorOutline className="w-6 h-6" />
               <span>{error.message}</span>
-
-              <style jsx>{`
-                .loading-wrapper {
-                  height: 70vh;
-                  display: grid;
-                  place-content: center;
-                }
-              `}</style>
             </div>
-          )
-        }
-        if (!props) {
-          return (
-            <div className="loading-wrapper">
-              <Spin size="large" />
-
-              <style jsx>{`
-                .loading-wrapper {
-                  height: 70vh;
-                  display: grid;
-                  place-content: center;
-                }
-              `}</style>
-            </div>
-          )
-        }
-        return <MainWrapper response={props} />
-      }}
-    />
+          </div>
+        </div>
+      ) : !props ? (
+        <div className="hero-content">
+          <progress className="progress progress-primary w-56"></progress>
+        </div>
+      ) : (
+        <div className="hero-content p-0 w-full max-w-full">
+          <MainWrapper response={props} />
+        </div>
+      )}
+    </main>
   )
 }
 

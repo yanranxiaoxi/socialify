@@ -1,7 +1,5 @@
 /* eslint-disable jest/no-conditional-expect */
-import React from 'react'
-import { shallow } from 'enzyme'
-import toJson from 'enzyme-to-json'
+import { render } from '@testing-library/react'
 
 import Card from './card'
 
@@ -23,38 +21,34 @@ test('Card #1 renders', () => {
     theme: Theme.light
   }
 
-  const card = shallow(<Card {...config} />)
-  expect(toJson(card)).toMatchSnapshot()
-  expect(card.hasClass('card-svg-wrapper')).toBe(true)
-  const cardWrapper = card.find('.card-wrapper')
+  const { container } = render(<Card {...config} />)
+
+  const cardWrapper = container.firstElementChild! as HTMLDivElement
+  expect(cardWrapper).toMatchSnapshot()
+
   expect(cardWrapper).toBeTruthy()
-  expect(cardWrapper.hasClass('card-wrapper')).toBe(true)
-  expect((cardWrapper.prop('style') || {}).fontFamily).toStrictEqual(
-    config.font
-  )
-  expect(cardWrapper.hasClass(`theme-${config.theme.toLowerCase()}`)).toBe(true)
-  expect(cardWrapper.find('.card-logo-wrapper i').length).toBe(1)
+  expect(cardWrapper.classList.contains('card-wrapper')).toBe(true)
+  expect(cardWrapper.style.fontFamily).toStrictEqual(config.font)
   expect(
-    cardWrapper
-      .find('.card-logo-wrapper i')
-      .at(0)
-      .hasClass('devicon-github-original')
+    cardWrapper.classList.contains(`theme-${config.theme.toLowerCase()}`)
   ).toBe(true)
-  expect(cardWrapper.find('.card-logo-wrapper img').exists()).toBe(false)
+  expect(cardWrapper.querySelectorAll('.card-logo-wrapper img').length).toBe(1)
   expect(
-    cardWrapper.find('.card-logo-wrapper i').at(0).hasClass('colored')
-  ).toBe(true)
-  expect(cardWrapper.find('.card-logo-divider').length).toBe(0)
-  expect(cardWrapper.find('.card-name-name').text()).toStrictEqual(
-    config.name?.value
-  )
-  expect(cardWrapper.find('.card-description-wrapper').exists()).toBe(false)
-  expect(cardWrapper.find('.card-badges-wrapper').length).toBe(0)
+    cardWrapper.querySelectorAll<HTMLImageElement>(
+      '.card-logo-wrapper img'
+    )?.[0]?.alt
+  ).toBe('Logo')
+  expect(cardWrapper.querySelectorAll('.card-logo-divider').length).toBe(0)
+  expect(
+    cardWrapper.querySelector('.card-name-name')?.textContent
+  ).toStrictEqual(config.name?.value)
+  expect(cardWrapper.querySelector('.card-description-wrapper')).toBeFalsy()
+  expect(cardWrapper.querySelectorAll('.card-badges-wrapper').length).toBe(0)
 })
 
 test('Card #2 renders', () => {
   const config: Configuration = {
-    font: Font.koho,
+    font: Font.koHo,
     logo: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
     name: {
       value: 'project_name',
@@ -92,52 +86,74 @@ test('Card #2 renders', () => {
     }
   }
 
-  const card = shallow(<Card {...config} />)
-  expect(toJson(card)).toMatchSnapshot()
-  expect(card.hasClass('card-svg-wrapper')).toBe(true)
-  const cardWrapper = card.find('.card-wrapper')
+  const { container } = render(<Card {...config} />)
+
+  const cardWrapper = container.firstElementChild! as HTMLDivElement
+  expect(cardWrapper).toMatchSnapshot()
+
   expect(cardWrapper).toBeTruthy()
-  expect(cardWrapper.hasClass('card-wrapper')).toBe(true)
-  expect((cardWrapper.prop('style') || {}).fontFamily).toStrictEqual(
-    config.font
-  )
-  expect(cardWrapper.hasClass(`theme-${config.theme.toLowerCase()}`)).toBe(true)
-  expect(cardWrapper.find('.card-name-name').text()).toStrictEqual(
-    config.name?.value
-  )
-  expect(cardWrapper.find('.card-logo-wrapper img').length).toBe(1)
-  expect(cardWrapper.find('.card-logo-wrapper img').prop('src')).toBe(
-    config.logo
-  )
-  expect(cardWrapper.find('.card-logo-wrapper i').length).toBe(1)
-  expect(cardWrapper.find('.card-logo-divider').length).toBe(1)
-  expect(cardWrapper.find('.card-description-wrapper').text()).toStrictEqual(
-    config.description?.value
-  )
-  expect(cardWrapper.find('.card-badges-wrapper').length).toBe(1)
-  expect(cardWrapper.find('.card-badges-wrapper > *').length).toBe(4)
+  expect(cardWrapper.classList.contains('card-wrapper')).toBe(true)
+  expect(cardWrapper.style.fontFamily).toStrictEqual(config.font)
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(0).prop('name')
+    cardWrapper.classList.contains(`theme-${config.theme.toLowerCase()}`)
+  ).toBe(true)
+  expect(
+    cardWrapper.querySelector('.card-name-name')?.textContent
+  ).toStrictEqual(config.name?.value)
+  expect(cardWrapper.querySelectorAll('.card-logo-wrapper img').length).toBe(2)
+  expect(
+    cardWrapper.querySelectorAll<HTMLImageElement>(
+      '.card-logo-wrapper img'
+    )?.[0].src
+  ).toBe(config.logo)
+  expect(
+    cardWrapper.querySelectorAll<HTMLImageElement>(
+      '.card-logo-wrapper img'
+    )?.[0]?.alt
+  ).toBe('Logo')
+  expect(cardWrapper.querySelectorAll('.card-logo-divider').length).toBe(1)
+  expect(
+    cardWrapper.querySelectorAll<HTMLImageElement>(
+      '.card-logo-wrapper img'
+    )?.[1]?.alt
+  ).toBe('JavaScript')
+  expect(
+    cardWrapper.querySelector('.card-description-wrapper')?.textContent
+  ).toStrictEqual(config.description?.value)
+  expect(cardWrapper.querySelectorAll('.card-badges-wrapper').length).toBe(1)
+  expect(cardWrapper.querySelectorAll('.card-badges-wrapper > *').length).toBe(
+    4
+  )
+  expect(
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[0]
+      ?.firstElementChild?.textContent
   ).toStrictEqual('stars')
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(0).prop('value')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[0]
+      ?.lastElementChild?.textContent
   ).toStrictEqual(`${config.stargazers?.value}`)
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(1).prop('name')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[1]
+      ?.firstElementChild?.textContent
   ).toStrictEqual('forks')
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(1).prop('value')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[1]
+      ?.lastElementChild?.textContent
   ).toStrictEqual(`${config.forks?.value}`)
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(2).prop('name')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[2]
+      ?.firstElementChild?.textContent
   ).toStrictEqual('issues')
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(2).prop('value')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[2]
+      ?.lastElementChild?.textContent
   ).toStrictEqual(`${config.issues?.value}`)
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(3).prop('name')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[3]
+      ?.firstElementChild?.textContent
   ).toStrictEqual('pulls')
   expect(
-    cardWrapper.find('.card-badges-wrapper > *').at(3).prop('value')
+    cardWrapper.querySelectorAll('.card-badges-wrapper > *')[3]
+      ?.lastElementChild?.textContent
   ).toStrictEqual(`${config.pulls?.value}`)
 })

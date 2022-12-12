@@ -1,11 +1,14 @@
-import React from 'react'
-import { shallow } from 'enzyme'
-import toJson from 'enzyme-to-json'
+import { render } from '@testing-library/react'
 
 import Header from './header'
 
-test('Header renders', () => {
-  const header = shallow(<Header />)
+jest.mock('next/router', () => ({
+  useRouter: jest.fn()
+}))
 
-  expect(toJson(header)).toMatchSnapshot()
+test('Header renders', () => {
+  const { container } = render(<Header />)
+  const header = container.firstElementChild!
+
+  expect(header).toMatchSnapshot()
 })

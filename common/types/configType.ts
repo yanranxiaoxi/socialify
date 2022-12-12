@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 enum Theme {
   light = 'Light',
-  dark = 'Dark'
+  dark = 'Dark',
+  auto = 'Auto'
 }
 
 enum Pattern {
@@ -23,7 +24,8 @@ enum Font {
   raleway = 'Raleway',
   rokkitt = 'Rokkitt',
   sourceCodePro = 'Source Code Pro',
-  koho = 'KoHo'
+  koHo = 'KoHo',
+  jost = 'Jost'
 }
 
 export type RequiredConfigs = {

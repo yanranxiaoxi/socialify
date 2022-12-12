@@ -1,102 +1,118 @@
-import { readFileSync } from 'fs'
-import React from 'react'
-import ReactDOMServer from 'react-dom/server'
-import { flushToHTML } from 'styled-jsx/server'
-import { fetchQuery } from 'react-relay'
-
-import Card from '../src/components/preview/card'
-import enviornment from './relay/environment'
-import repoQuery from './relay/repoQuery'
-
-import { repoQueryResponse } from './relay/__generated__/repoQuery.graphql'
-
+import { SatoriOptions } from 'satori'
 import { Font } from './types/configType'
 import QueryType from './types/queryType'
-
 import { mergeConfig } from './configHelper'
+import { getRepoDetails } from './github/repoQuery'
+import { getIconCode, loadEmoji } from './twemoji'
+import { HOST_PREFIX } from './helpers'
 
-const cwd = process.cwd()
+export async function getFont(
+  font: Font,
+  weight: SatoriOptions['fonts'][0]['weight']
+): Promise<SatoriOptions['fonts'][0]> {
+  const fontSlug = font.replace(/\s/g, '-').toLowerCase()
+  const cdnUrl = `https://cdn.jsdelivr.net/npm/@fontsource/${fontSlug}/files/${fontSlug}-all-${weight}-normal.woff`
 
-const devIconCSS = readFileSync(`${cwd}/common/fonts/devicon.css`).toString(
-  'utf-8'
-)
-
-const getGoogleFontCSS = (font: Font): string => {
-  const googleFontsCSS = readFileSync(
-    `${cwd}/common/fonts/google-fonts.css`
-  ).toString('utf-8')
-
-  return googleFontsCSS
-    .replace(/([{;])\n*\s*/g, '$1')
-    .split('\n')
-    .filter((f) => f.startsWith(`@font-face {font-family: '${font}'`))
-    .join('\n')
+  return {
+    name: font,
+    data: await fetch(cdnUrl).then((response) => {
+      if (response.ok) {
+        return response.arrayBuffer()
+      }
+      throw new Error('Failed to fetch font')
+    }),
+    weight,
+    style: 'normal'
+  }
 }
 
-const getRepoResponse = async (owner: string, name: string) => {
-  return (await fetchQuery(enviornment, repoQuery, {
-    owner,
-    name
-  })) as repoQueryResponse
+export function getFonts(font: Font) {
+  return Promise.all([
+    getFont(Font.jost, 400),
+    getFont(font, 200),
+    getFont(font, 400),
+    getFont(font, 500)
+  ])
 }
 
-const getBase64Image = async (imgUrl: string) => {
-  const imagePromise = new Promise<string>((resolve) => {
-    fetch(imgUrl)
-      .then(async (response) => {
-        const arrayBuffer = await response.arrayBuffer()
-        const base64Url =
-          'data:' +
-          ((response.headers.get('content-type') || 'image/png') +
-            ';base64,' +
-            Buffer.from(arrayBuffer).toString('base64'))
-        resolve(base64Url)
-      })
-      .catch(() => {
-        resolve('')
-      })
-  })
-  const timeoutPromise = new Promise<string>((resolve) => {
-    setTimeout(() => {
-      resolve('')
-    }, 1500)
-  })
-  return Promise.race([timeoutPromise, imagePromise])
+export const languageFontMap: Record<string, string | string[]> = {
+  zh: 'Noto+Sans+SC',
+  ja: 'Noto+Sans+JP',
+  ko: 'Noto+Sans+KR',
+  th: 'Noto+Sans+Thai',
+  he: 'Noto+Sans+Hebrew',
+  ar: 'Noto+Sans+Arabic',
+  bn: 'Noto+Sans+Bengali',
+  ta: 'Noto+Sans+Tamil',
+  te: 'Noto+Sans+Telugu',
+  ml: 'Noto+Sans+Malayalam',
+  devanagari: 'Noto+Sans+Devanagari',
+  kannada: 'Noto+Sans+Kannada',
+  symbol: ['Noto+Sans+Symbols', 'Noto+Sans+Symbols+2'],
+  math: 'Noto+Sans+Math',
+  unknown: 'Noto+Sans+SC'
 }
 
-const renderCard = async (query: QueryType) => {
-  const responsePromise = getRepoResponse(query._owner, query._name)
-  const promises: Promise<repoQueryResponse | string>[] = [responsePromise]
+function withCache(fn: Function) {
+  const cache = new Map()
+  return async (...args: string[]) => {
+    const key = args.join('|')
+    if (cache.has(key)) return cache.get(key)
+    const result = await fn(...args)
+    cache.set(key, result)
+    return result
+  }
+}
 
-  if (query.logo) {
-    if (query.logo.toLowerCase().startsWith('http')) {
-      const imagePromise = getBase64Image(query.logo)
-      promises.push(imagePromise)
+type LanguageCode = keyof typeof languageFontMap | 'emoji'
+
+export const loadDynamicAsset = withCache(
+  async (code: LanguageCode, text: string) => {
+    if (code === 'emoji') {
+      // It's an emoji, load the image.
+      return (
+        `data:image/svg+xml;base64,` +
+        btoa(await loadEmoji('twemoji', getIconCode(text)))
+      )
+    }
+
+    // Try to load from Google Fonts.
+    let names = languageFontMap[code]
+    if (!names) code = 'unknown'
+
+    try {
+      if (typeof names === 'string') {
+        names = [names]
+      }
+
+      for (const name of names) {
+        const res = await fetch(
+          `${HOST_PREFIX}/api/font?font=${encodeURIComponent(
+            name
+          )}&text=${encodeURIComponent(text)}`
+        )
+        if (res.status === 200) {
+          const font = await res.arrayBuffer()
+          return {
+            name: `satori_${code}_fallback_${text}`,
+            data: font,
+            weight: 400,
+            style: 'normal'
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load dynamic font for', text, '. Error:', e)
     }
   }
+)
 
-  const responses = await Promise.all(promises)
-  const { repository } = responses[0] as repoQueryResponse
-  if (responses.length > 1) {
-    const imageUrl = responses[1] as string
-    Object.assign(query, { logo: imageUrl })
-  }
+export async function getCardConfig(query: QueryType) {
+  const { repository } = await getRepoDetails(query._owner, query._name)
+
   const config = mergeConfig(repository, query)
 
   if (!config) throw Error('Configuration failed to generate')
 
-  const cardComponent = React.createElement(Card, config)
-  const cardHTMLMarkup = ReactDOMServer.renderToStaticMarkup(cardComponent)
-  const styleTags = flushToHTML()
-
-  return cardHTMLMarkup.replace(
-    '</foreignObject>',
-    `${styleTags}</foreignObject>
-    <defs><style type="text/css">
-      ${devIconCSS}
-      ${getGoogleFontCSS(config.font)}
-    </style></defs>`
-  )
+  return config
 }
-
-export default renderCard

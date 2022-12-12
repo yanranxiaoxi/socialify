@@ -2,40 +2,29 @@
 
 exports[`Footer renders 1`] = `
 <footer
-  className="jsx-2668249294"
+  class="footer footer-center p-2 text-base-content"
 >
-  <ForwardRef(Text)
-    style={
-      {
-        "margin": "unset",
-      }
-    }
-  >
-    <span
-      className="jsx-2668249294"
-    >
-      Made with 💖 by 
-    </span>
-    <ForwardRef
-      href="https://cryogenicplanet.tech"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      CryogenicPlanet
-    </ForwardRef>
-     and 
-    <ForwardRef
-      href="https://github.com/wei/"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      Wei
-    </ForwardRef>
-  </ForwardRef(Text)>
-  <JSXStyle
-    id="2668249294"
-  >
-    footer.jsx-2668249294{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;}
-  </JSXStyle>
+  <div>
+    <p>
+      <span>
+        Made with 💖 by 
+      </span>
+      <a
+        class="link link-accent no-underline"
+        href="https://cryogenicplanet.tech"
+        target="_blank"
+      >
+        CryogenicPlanet
+      </a>
+       and 
+      <a
+        class="link link-accent no-underline"
+        href="https://github.com/wei/"
+        target="_blank"
+      >
+        Wei
+      </a>
+    </p>
+  </div>
 </footer>
 `;

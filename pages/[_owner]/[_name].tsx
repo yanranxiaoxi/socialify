@@ -1,4 +1,3 @@
-import React from 'react'
 import MainRenderer from '../../src/components/mainRenderer'
 
 const RepoPage = () => {
