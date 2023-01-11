@@ -1,5 +1,11 @@
 # socialify
 
+## 2.4.1
+
+### Patch Changes
+
+- 9d6b91d: Add Java Icon
+
 ## 2.4.0
 
 ### Minor Changes
