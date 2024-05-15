@@ -1,5 +1,71 @@
 # socialify
 
+## 2.8.3
+
+### Patch Changes
+
+- fecd506: Remove unnecessary dangerouslySetInnerHtml
+
+## 2.8.2
+
+### Patch Changes
+
+- 563def4: Securely migrated from eslint to biomejs.
+
+## 2.8.1
+
+### Patch Changes
+
+- 66f8c4f: ⬆️ Upgrade to next 14
+
+## 2.8.0
+
+### Minor Changes
+
+- 0e8a230: Change `word-break` style of description
+
+## 2.7.0
+
+### Minor Changes
+
+- 7dd83ad: Upgrade dependencies
+
+## 2.6.2
+
+### Patch Changes
+
+- cdd9fa9: Upgrade satori with CJK character support
+
+## 2.6.1
+
+### Patch Changes
+
+- 9047d49: Revert "⬆️ Upgrade satori" due to Chinese character #227
+
+## 2.6.0
+
+### Minor Changes
+
+- f547598: Upgrade satori
+
+## 2.5.2
+
+### Patch Changes
+
+- 762ab0c: Fix emojis
+
+## 2.5.1
+
+### Patch Changes
+
+- 0270927: Fix png endpoint
+
+## 2.5.0
+
+### Minor Changes
+
+- 6db06b3: Support new line in description
+
 ## 2.4.2
 
 ### Patch Changes
